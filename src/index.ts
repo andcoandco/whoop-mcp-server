@@ -22,6 +22,16 @@ const config = {
 };
 
 const db = new WhoopDatabase(config.dbPath);
+// Bootstrap tokens from environment variables if database has none
+if (!db.getTokens() && process.env.WHOOP_ACCESS_TOKEN) {
+  console.log('Bootstrapping tokens from environment variables...');
+  db.saveTokens({
+    access_token: process.env.WHOOP_ACCESS_TOKEN,
+    refresh_token: process.env.WHOOP_REFRESH_TOKEN ?? '',
+    expires_at: Number(process.env.WHOOP_TOKEN_EXPIRES_AT) || (Date.now() + 3600000),
+  });
+  console.log('Tokens saved successfully.');
+}
 const client = new WhoopClient({
 	clientId: config.clientId,
 	clientSecret: config.clientSecret,
